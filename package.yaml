@@ -1,0 +1,51 @@
+spec-version:        0.31.0
+name:                Inventory
+version:             0.0.0.0
+github:              "Reyu/Inventory"
+license:             MIT
+author:              "Tim Millican"
+maintainer:          "Tim Millican <reyu@reyuzenfold.com>"
+copyright:           "2021 Tim Millican"
+
+extra-source-files:
+- README.md
+- CHANGELOG.md
+
+description: Please see the README on GitHub at <https://github.com/BlackFoxCode/Discord#readme>
+
+ghc-options: -Werror -Wall -Wcompat -Wincomplete-uni-patterns -Widentities
+default-extensions:
+- DataKinds
+- FlexibleContexts
+- GADTs
+- LambdaCase
+- OverloadedStrings
+- PolyKinds
+- RankNTypes
+- ScopedTypeVariables
+- TypeApplications
+- TypeFamilies
+- TypeOperators
+
+dependencies:
+- base-noprelude ^>= 4.13.0.0
+- relude
+
+library:
+  source-dirs: src
+
+tests:
+  spec:
+    main: Spec.hs
+    source-dirs:
+    - test
+    - src
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - hspec
+    - hspec-core
+    - lens
+    build-tools: hspec-discover
