@@ -1,0 +1,29 @@
+{
+    "src/Inventory/*.hs": {
+        "alternate": "test/{}Spec.hs",
+        "type": "src",
+        "template": [
+            "{- |",
+            "Copyright: (c) 2021 Reyu Zenfold",
+            "SPDX-License-Identifier: MIT",
+            "Maintainer: Reyu Zenfold <reyu@reyuzenfold.com>",
+            "",
+            "-}",
+            "",
+            "module Inventory.{dot}",
+            "    () where"
+        ]
+    },
+    "src/Inventory.hs": {
+        "alternate": "test/{}Spec.hs",
+        "type": "src"
+    },
+    "test/*Spec.hs": {
+        "alternate": "src/{}.hs",
+        "type": "test"
+    },
+    "*": {
+        "console": "cabal repl",
+        "make": "nix build"
+    }
+}

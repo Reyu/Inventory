@@ -1,81 +1,132 @@
-cabal-version: 1.12
+cabal-version:   2.4
+name:            Inventory
+version:         0.0.0.0
+description:
+  Please see the README on GitHub at <https://github.com/BlackFoxCode/Discord#readme>
 
--- This file has been generated from package.yaml by hpack version 0.34.4.
---
--- see: https://github.com/sol/hpack
+homepage:        https://github.com/Reyu/Inventory
+bug-reports:     https://github.com/Reyu/Inventory/issues
+author:          Tim Millican
+maintainer:      reyu@reyuzenfold.com
+copyright:       2021 Tim Millican
+license:         MIT
+license-file:    LICENSE
+build-type:      Simple
+stability:       Alpha
+extra-doc-files:
+  CHANGELOG.md
+  README.md
 
-name:           Inventory
-version:        0.0.0.0
-description:    Please see the README on GitHub at <https://github.com/BlackFoxCode/Discord#readme>
-homepage:       https://github.com/Reyu/Inventory#readme
-bug-reports:    https://github.com/Reyu/Inventory/issues
-author:         Tim Millican
-maintainer:     Tim Millican <reyu@reyuzenfold.com>
-copyright:      2021 Tim Millican
-license:        MIT
-license-file:   LICENSE
-build-type:     Simple
-extra-source-files:
-    README.md
-    CHANGELOG.md
+extra-tmp-files: result
 
 source-repository head
-  type: git
+  type:     git
   location: https://github.com/Reyu/Inventory
 
-library
-  exposed-modules:
-      Inventory
-  other-modules:
-      Paths_Inventory
-  hs-source-dirs:
-      src
+-- flag CommandLineTools
+--   description: Compile CLI tools
+--   default:     True
+
+-- flag CommandLineStandalone
+--   description: CLI tools don't require the API endpoints
+--   default:     False
+
+-- flag WebBackend
+--   description: API endpoints
+--   default:     True
+
+-- flag WebFrontend
+--   description: Web based UI
+--   default:     True
+
+-- common common-options
+--   build-depends:
+--     , base-noprelude  >=4.7 && <5
+--     , relude
+
+  mixins:
+    base hiding (Prelude),
+    relude (Relude as Prelude)
+
+  ghc-options:
+    -Wall -Wcompat -Widentities -Wincomplete-uni-patterns
+    -Wincomplete-record-updates
+
+  if impl(ghc >=8.0)
+    ghc-options: -Wredundant-constraints
+
+  if impl(ghc >=8.2)
+    ghc-options: -fhide-source-paths
+
+  if impl(ghc >=8.4)
+    ghc-options: -Wmissing-export-lists -Wpartial-fields
+
+  if impl(ghc >=8.8)
+    ghc-options: -Wmissing-deriving-strategies
+
+  default-language:   Haskell2010
   default-extensions:
-      DataKinds
-      FlexibleContexts
-      GADTs
-      LambdaCase
-      OverloadedStrings
-      PolyKinds
-      RankNTypes
-      ScopedTypeVariables
-      TypeApplications
-      TypeFamilies
-      TypeOperators
-  ghc-options: -Werror -Wall -Wcompat -Wincomplete-uni-patterns -Widentities
+    DataKinds
+    FlexibleContexts
+    GADTs
+    LambdaCase
+    OverloadedStrings
+    PolyKinds
+    RankNTypes
+    ScopedTypeVariables
+    TypeApplications
+    TypeFamilies
+    TypeOperators
+
+library
+  import:          common-options
+  exposed-modules: Inventory
+  other-modules:   Prelude
+  hs-source-dirs:  src
   build-depends:
-      base-noprelude >=4.13.0.0 && <4.14
+    , base-noprelude
     , relude
-  default-language: Haskell2010
+
+-- executable inventory
+--   import:         common-options
+--   hs-source-dirs: app/cli
+--   main-is:        Main.hs
+--   build-depends:  Inventory
+
+--   if !flag(commandlinetools)
+--     buildable: False
+
+-- executable inventory-web
+--   import:         common-options
+--   hs-source-dirs: app/web
+--   main-is:        Main.hs
+--   build-depends:  Inventory
+--   other-modules:  Paths_Inventory
+
+--   if (!flag(webbackend) && !flag(webfrontend))
+--     buildable: False
+
+--   if (flag(webbackend) && !flag(webfrontend))
+--     main-is: Backend.hs
+
+--   if (!flag(webbackend) && flag(webfrontend))
+--     main-is: Frontend.hs
 
 test-suite spec
-  type: exitcode-stdio-1.0
-  main-is: Spec.hs
+  import:             common-options
+  type:               exitcode-stdio-1.0
+  main-is:            Spec.hs
   other-modules:
-      Inventory
-      Paths_Inventory
-  hs-source-dirs:
-      test
-      src
-  default-extensions:
-      DataKinds
-      FlexibleContexts
-      GADTs
-      LambdaCase
-      OverloadedStrings
-      PolyKinds
-      RankNTypes
-      ScopedTypeVariables
-      TypeApplications
-      TypeFamilies
-      TypeOperators
-  ghc-options: -Werror -Wall -Wcompat -Wincomplete-uni-patterns -Widentities -threaded -rtsopts -with-rtsopts=-N
-  build-tool-depends:
-      hspec-discover:hspec-discover
+    Inventory
+    Paths_Inventory
+    Prelude
+
+  hs-source-dirs:     test src
+  ghc-options:        -threaded -rtsopts -with-rtsopts=-N
+  build-tool-depends: hspec-discover:hspec-discover -any
   build-depends:
-      base-noprelude >=4.13.0.0 && <4.14
+    , base-noprelude  ^>=4.13.0.0
     , hspec
     , hspec-core
     , lens
     , relude
-  default-language: Haskell2010
