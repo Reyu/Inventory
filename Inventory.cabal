@@ -17,7 +17,9 @@ extra-doc-files:
   CHANGELOG.md
   README.md
 
-extra-tmp-files: result
+extra-tmp-files:
+  result
+  result-*
 
 source-repository head
   type:     git
@@ -39,10 +41,10 @@ source-repository head
 --   description: Web based UI
 --   default:     True
 
--- common common-options
---   build-depends:
---     , base-noprelude  >=4.7 && <5
---     , relude
+common common-options
+  build-depends:
+    , base  >=4.7 && <5
+    , relude
 
   mixins:
     base hiding (Prelude),
@@ -81,11 +83,12 @@ source-repository head
 library
   import:          common-options
   exposed-modules: Inventory
-  other-modules:   Prelude
   hs-source-dirs:  src
   build-depends:
     , base-noprelude
     , relude
+    , beam-core
+    , beam-postgres
 
 -- executable inventory
 --   import:         common-options
@@ -119,7 +122,6 @@ test-suite spec
   other-modules:
     Inventory
     Paths_Inventory
-    Prelude
 
   hs-source-dirs:     test src
   ghc-options:        -threaded -rtsopts -with-rtsopts=-N
