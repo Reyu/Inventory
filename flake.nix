@@ -34,6 +34,8 @@
               self: super: with pkgs.haskell.lib; {
                 # Use callCabal2nix to override Haskell dependencies here
                 # cf. https://tek.brick.do/K3VXJd8mEKO7
+
+                # We want to follow HEAD on the Beam repo, it has better features.
                 beam-core =
                   pkgs.haskell.lib.dontCheck (
                     self.callCabal2nix "beam-core" (haskell-beam + "/beam-core") { });
