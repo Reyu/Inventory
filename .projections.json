@@ -1,29 +1,42 @@
 {
     "src/Inventory/*.hs": {
         "alternate": "test/{}Spec.hs",
+        "related": [
+            "src/Inventory.hs"
+        ],
         "type": "src",
         "template": [
-            "{- |",
-            "Copyright: (c) 2021 Reyu Zenfold",
+            "{open}- |",
+            "Module: Inventory.{dot}",
+            "Description: ",
+            "Copyright: (c) 2021 Tim Millican",
             "SPDX-License-Identifier: MIT",
-            "Maintainer: Reyu Zenfold <reyu@reyuzenfold.com>",
+            "Maintainer: Tim Millican <reyu@reyuzenfold.com>",
+            "Stability: experimental",
             "",
-            "-}",
+            "-{close}",
             "",
             "module Inventory.{dot}",
             "    () where"
         ]
     },
-    "src/Inventory.hs": {
+    "src/Inventory/Database/{}.hs": {
         "alternate": "test/{}Spec.hs",
-        "type": "src"
+        "related": [
+            "src/Inventory/Database.hs"
+        ],
+        "type": "db"
+    },
+    "src/Inventory/Database/Tables/{}.hs": {
+        "alternate": "test/{}Spec.hs",
+        "type": "tbl"
     },
     "test/*Spec.hs": {
         "alternate": "src/{}.hs",
         "type": "test"
     },
     "*": {
-        "console": "cabal repl",
+        "console": "nix develop -c cabal repl",
         "make": "nix build"
     }
 }

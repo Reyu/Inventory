@@ -22,6 +22,7 @@
             withHoogle = true;
             overrides =
               let
+                dontCheck = pkgs.haskell.lib.dontCheck; # Allow package/deps marked as 'broken'
                 haskell-beam = pkgs.fetchFromGitHub {
                   owner = "haskell-beam";
                   repo = "beam";
@@ -35,19 +36,11 @@
                 # Use callCabal2nix to override Haskell dependencies here
                 # cf. https://tek.brick.do/K3VXJd8mEKO7
 
-                # We want to follow HEAD on the Beam repo, it has better features.
-                beam-core =
-                  pkgs.haskell.lib.dontCheck (
-                    self.callCabal2nix "beam-core" (haskell-beam + "/beam-core") { });
-                beam-postgres =
-                  pkgs.haskell.lib.dontCheck (
-                    self.callCabal2nix "beam-postgres" (haskell-beam + "/beam-postgres") { });
-                beam-migrate =
-                  pkgs.haskell.lib.dontCheck (
-                    self.callCabal2nix "beam-migrate" (haskell-beam + "/beam-migrate") { });
-                beam-migrate-cli =
-                  pkgs.haskell.lib.dontCheck (
-                    self.callCabal2nix "beam-migrate-cli" (haskell-beam + "/beam-migrate-cli") { });
+                # Beam doesn't publish to Hackage often, so we need to follow the repo.
+                beam-core        = dontCheck (beam self "core");
+                beam-postgres    = dontCheck (beam self "postgres");
+                beam-migrate     = dontCheck (beam self "migrate");
+                beam-migrate-cli = dontCheck (beam self "migrate-cli");
               };
             modifier = drv:
               pkgs.haskell.lib.addBuildTools drv (with pkgs.haskellPackages;
