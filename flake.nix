@@ -1,5 +1,6 @@
 {
   description = "Home Inventory Management";
+
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
     flake-compat = {
@@ -8,57 +9,60 @@
     };
   };
 
-  outputs = inputs@{ self, nixpkgs, flake-utils, ... }:
-    flake-utils.lib.eachSystem [ "x86_64-linux" "x86_64-darwin" ] (system:
+  outputs = { self, nixpkgs, flake-utils, ... }:
+    flake-utils.lib.eachSystem ["x86_64-linux"] (system:
       let
-        overlays = [ ];
-        pkgs =
-          import nixpkgs { inherit system overlays; config.allowBroken = false; };
-        project = returnShellEnv:
-          pkgs.haskellPackages.developPackage {
-            inherit returnShellEnv;
-            name = "Inventory";
-            root = ./.;
-            withHoogle = true;
-            overrides =
-              let
-                dontCheck = pkgs.haskell.lib.dontCheck; # Allow package/deps marked as 'broken'
-                haskell-beam = pkgs.fetchFromGitHub {
-                  owner = "haskell-beam";
-                  repo = "beam";
-                  rev = "f461925cf94a096238b8c37f30318c46d1e9f9cf";
-                  sha256 = "WFegq92+IuNK3uFguEfkVNIkBD0s0VMhWrYUeWiN04U=";
-                  fetchSubmodules = true;
-                };
-                beam = self: subpkg: self.callCabal2nix "beam-${subpkg}" (haskell-beam + "/beam-${subpkg}") { };
-              in
-              self: super: with pkgs.haskell.lib; {
-                # Use callCabal2nix to override Haskell dependencies here
-                # cf. https://tek.brick.do/K3VXJd8mEKO7
-
-                # Beam doesn't publish to Hackage often, so we need to follow the repo.
-                beam-core        = dontCheck (beam self "core");
-                beam-postgres    = dontCheck (beam self "postgres");
-                beam-migrate     = dontCheck (beam self "migrate");
-                beam-migrate-cli = dontCheck (beam self "migrate-cli");
-              };
-            modifier = drv:
-              pkgs.haskell.lib.addBuildTools drv (with pkgs.haskellPackages;
-              [
-                # Specify build/dev dependencies here.
-                cabal-fmt
-                cabal-install
-                ghcid
-                haskell-language-server
-                pkgs.nixpkgs-fmt
-              ]);
+        haskell-beam = pkgs.fetchFromGitHub {
+          owner = "haskell-beam";
+          repo = "beam";
+          rev = "f461925cf94a096238b8c37f30318c46d1e9f9cf";
+          sha256 = "WFegq92+IuNK3uFguEfkVNIkBD0s0VMhWrYUeWiN04U=";
+          fetchSubmodules = true;
+        };
+        dontCheck = pkgs.haskell.lib.dontCheck; # Allow package/deps marked as 'broken'
+        overlay = final: prev: rec {
+          haskellPackages = prev.haskellPackages // {
+            beam-core = (pkgs.haskell.lib.overrideSrc prev.haskellPackages.beam-core {
+              src = "${haskell-beam}/beam-core";
+              version = "0.9.0.0";
+            });
+            # beam-postgres = prev.haskell.lib.doJailbreak (final.haskellPackages.callCabal2nix "beam-postgres" "${haskell-beam}/beam-postgres" { });
           };
-      in
-      {
-        # Used by `nix build` & `nix run` (prod exe)
-        defaultPackage = project false;
+        };
+        pkgs = (import nixpkgs {
+          inherit system;
+          overlays = [ overlay ];
+        });
+        haskellPackages = pkgs.haskellPackages;
+      in rec {
+        packages = flake-utils.lib.flattenTree {
+          inventory = pkgs.stdenv.mkDerivation {
+            pname = "Inventory";
+            version = "0.0.0.0";
+            src = ./.;
 
-        # Used by `nix develop` (dev shell)
-        devShell = project true;
+            libraryHaskellDepends = with haskellPackages; [
+              beam-core
+              aeson
+              base
+              directory
+              dotenv
+              postgresql-simple
+              relude
+            ];
+            testHaskellDepends = with haskellPackages; [
+              base
+              hspec-core
+              lens
+              relude
+            ];
+            # testToolDepends = with haskellPackages; [ hspec-discover ];
+            homepage = "https://github.com/Reyu/Inventory";
+            # license = pkgs.lib.licenses.mit;
+            builder = "${haskellPackages.cabal-install}/bin/cabal";
+            args = [ "build" ];
+          };
+        };
+        defaultPackage = packages.inventory;
       });
 }
