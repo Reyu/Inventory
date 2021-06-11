@@ -17,8 +17,8 @@ module Inventory.Database.Tables.Units
   ( -- * Primary Keys
     PrimaryKey(UnitId, UnitConversionId)
     -- * Units Table
-  , UnitT
-  , Unit
+  , UnitT(Unit)
+  , type Unit
     -- ** Lenses
   , unitId
   , unitName

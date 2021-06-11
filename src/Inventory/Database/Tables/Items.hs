@@ -33,7 +33,13 @@ import           Database.Beam                  ( Beamable
                                                 )
 import           Database.Beam.Backend          ( SqlSerial )
 import           Inventory.Database.Tables.Locations
+                                                ( LocationT
+                                                , PrimaryKey(LocationId)
+                                                )
 import           Inventory.Database.Tables.Units
+                                                ( PrimaryKey(UnitId)
+                                                , UnitT
+                                                )
 import           Inventory.Database.Utils       ( defaultJSONOptions )
 
 data ItemT f = Item
